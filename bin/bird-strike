@@ -1,0 +1,7 @@
+#! /usr/bin/ruby
+#-*- coding: utf-8 -*-
+
+libpath = File.expand_path("../../lib", __FILE__)
+require "#{libpath}/bird-strike.rb"
+
+BirdStrike.launch

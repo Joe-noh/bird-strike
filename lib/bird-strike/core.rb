@@ -3,29 +3,28 @@
 module BirdStrike
 
   def self.launch
-    Window.init
-    Window.puts_title
+    @@win = Window.new
+    @@win.puts_title
     sleep 1
 
     @@conf = FileIO.get_config
-    @@keys = FileIO.get_consumer_key_secret
+    keys   = FileIO.get_consumer_key_secret
     token  = FileIO.get_access_token
 
     if token.nil?
-      Window.bottom(Twitter::Auth.get_oauth_url @@keys)
+      @@win.center(-4, TwitterModule::Auth.get_oauth_url keys)
       begin
-        pin = Window.prompt("pin").strip.to_i
-        token = Twitter::Auth.get_oauth_token pin
-        FileIO.store_access_token(token)
+        pin = @@win.prompt("pin").strip.to_i
+        token = Authorization.get_oauth_token pin
+        FileIO.store_access_token token
       rescue => e
-        Window.bottom(e.message)
+        @@win.center(-2, e.message)
         retry
       end
     end
-    @@keys.merge! token
+    TwitterModule::Auth.authorize keys.merge token
 
-    Twitter::Auth.authorize @@keys
-    [Twitter::Streaming.thread, Input.thread].each(&:join)
+    [TwitterModule::Streaming.thread, InputLoop.thread].each(&:join)
   end
 
 end

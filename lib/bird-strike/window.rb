@@ -1,48 +1,51 @@
 #-*- coding: utf-8 -*-
 
 module BirdStrike
-  module Window
+  class Window
 
-    def self.init
-      Ncurses.initscr
-      Ncurses.cbreak
-      Ncurses.nonl
-      Ncurses.noecho
-      Ncurses.curs_set 0  # Invisible cursor
+    def initialize
+      ncurses_init
 
-      self.color_setting
+      @timelines = Array.new
       rows = Ncurses.getmaxy(Ncurses.stdscr)
+      cols = Ncurses.getmaxx(Ncurses.stdscr)
       # Sub Window
-      #  Ncurses::WINDOW.new(height, width, lefttopx, lefttopy)
-      @@tl_scr = Ncurses::WINDOW.new(rows-3, 0, 0, 0)
-      @@tl_scr.intrflush false
-      @@tl_scr.keypad true
-      @@tl_scr.refresh
+      #  Ncurses::WINDOW.new(height, width, lefttopy, lefttopx)
+      @tl_scr = Ncurses::WINDOW.new(rows-5, 0, 0, 0)
+      @tl_scr.intrflush false
+      @tl_scr.keypad true
+      @tl_scr.refresh
 
-      @@msg_scr = Ncurses::WINDOW.new(3, 0, rows-3, 0)
-      @@msg_scr.intrflush false
-      @@msg_scr.keypad true
-      @@msg_scr.border(0, 0, 0, 0, 0, 0, 0, 0)
-      @@msg_scr.move(1, 1)
-      @@msg_scr.refresh
+      @msg_outline = Ncurses::WINDOW.new(5, 0, rows-5, 0)
+      @msg_outline.border(*"  ------".bytes)
+      @msg_outline.refresh
+      @msg_scr = Ncurses::WINDOW.new(3, 0, rows-4, 0)
+      @msg_scr.intrflush false
+      @msg_scr.keypad true
+      @msg_scr.idlok true
+      @msg_scr.scrollok true
+      @msg_scr.refresh
+    end
 
-      @@tweets = Array.new
+    def neutral_window
+      n = @timeline.size
     end
 
     def self.add_tweet_status(status)
       @@tweets.unshift status
+      self.writing?
       self.rewrite_timeline
     end
 
-    def self.bottom(str)
-      x = (Ncurses.getmaxx(@@tl_scr) - str.length)/2
-      y =  Ncurses.getmaxy(@@tl_scr) - 3
+    def center(y, str)
+      x = (Ncurses.getmaxx(@@tl_scr)-str.length) / 2
+      y =  Ncurses.getmaxy(@@tl_scr)-y + 1 if y < 0
 
       @@tl_scr.mvaddstr(y, x, str)
       @@tl_scr.refresh
     end
 
-    def self.puts_title
+    def puts_title
       title = Array.new
       title << "        11111111111111111111111        111111111111111111  1111111111"
       title << "  1111  1111111111111111111  11  1111  111111111111111111  1111111111"
@@ -55,7 +58,7 @@ module BirdStrike
       width  = title.first.length
       height = title.length
 
-      x = (Ncurses.getmaxx(@@tl_scr) - width)/2
+      x = (Ncurses.getmaxx(@@tl_scr) - width )/2
       y = (Ncurses.getmaxy(@@tl_scr) - height)/2
 
       @@tl_scr.color_set(7, nil)
@@ -72,19 +75,17 @@ module BirdStrike
       @@tl_scr.refresh
     end
 
-    def self.prompt(str)
-      @@msg_scr.mvaddstr(1, 1, "#{str}: ")
+    def self.prompt
+      @@msg_scr.move(0, 0)
       @@msg_scr.refresh
 
       Ncurses.curs_set 1
-      system("stty echo")
+      system("stty  echo")
       input = Readline.readline
       system("stty -echo")
       Ncurses.curs_set 0
 
       @@msg_scr.clear
-      @@msg_scr.border(0, 0, 0, 0, 0, 0, 0, 0)
-      @@msg_scr.move(1, 1)
       @@msg_scr.refresh
 
       return input
@@ -97,6 +98,13 @@ module BirdStrike
       @@msg_scr.refresh
     end
 
+    def self.writing?
+      x = Ncurses.getcurx(@@msg_scr)
+      y = Ncurses.getcury(@@msg_scr)
+      @@tl_scr.mvaddstr(0, 0, x.to_s)
+      return x<=3 && y==1 ? false : true
+    end
+
     def self.rewrite_timeline # too dirty, too complex
       @@tl_scr.clear
       maxx = Ncurses.getmaxx(@@tl_scr)
@@ -105,10 +113,8 @@ module BirdStrike
       @@tweets.each do |tweet|
         name, text, rtby = tweet.name_text_rtby
         rtby = rtby.rjust maxx unless rtby.nil?
-        @@tl_scr.move(y, 0)
-        @@tl_scr.addstr " "*maxx
-        @@tl_scr.move(y, 0)
-        @@tl_scr.addstr name
+        @@tl_scr.mvaddstr(y, 0, ' '*maxx)
+        @@tl_scr.mvaddstr(y, 0, name)
         indent = Ncurses.getcurx(@@tl_scr)
         text.each_char do |char|
           if  Ncurses.getcurx(@@tl_scr) >= maxx-2 ||
@@ -127,7 +133,14 @@ module BirdStrike
       @@tl_scr.refresh
     end
 
-    def self.color_setting
+    def ncurses_init
+      Ncurses.setlocale(Ncurses::LC_ALL, "")
+      Ncurses.initscr
+      Ncurses.cbreak
+      Ncurses.nonl
+      Ncurses.echo
+      Ncurses.curs_set 0
+
       Ncurses.start_color
       Ncurses.init_pair(1, Ncurses::COLOR_RED,     Ncurses::COLOR_BLACK)
       Ncurses.init_pair(2, Ncurses::COLOR_GREEN,   Ncurses::COLOR_BLACK)

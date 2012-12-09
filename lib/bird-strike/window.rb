@@ -5,30 +5,14 @@ module BirdStrike
 
     def initialize
       ncurses_init
-
-      @timelines = Array.new
-      rows = Ncurses.getmaxy(Ncurses.stdscr)
-      cols = Ncurses.getmaxx(Ncurses.stdscr)
-      # Sub Window
-      #  Ncurses::WINDOW.new(height, width, lefttopy, lefttopx)
-      @tl_scr = Ncurses::WINDOW.new(rows-5, 0, 0, 0)
-      @tl_scr.intrflush false
-      @tl_scr.keypad true
-      @tl_scr.refresh
-
-      @msg_outline = Ncurses::WINDOW.new(5, 0, rows-5, 0)
-      @msg_outline.border(*"  ------".bytes)
-      @msg_outline.refresh
-      @msg_scr = Ncurses::WINDOW.new(3, 0, rows-4, 0)
-      @msg_scr.intrflush false
-      @msg_scr.keypad true
-      @msg_scr.idlok true
-      @msg_scr.scrollok true
-      @msg_scr.refresh
+      @timeline = TimeLine.new(:userstream)
+      make_subwins
+      rewrite
     end
 
-    def neutral_window
-      n = @timeline.size
+    def rewrite
+      x = Ncurses.getmaxx @@tl_scr
+      y = Ncurses.getmaxy @@tl_scr
     end
 
     def self.add_tweet_status(status)
@@ -37,7 +21,8 @@ module BirdStrike
       self.rewrite_timeline
     end
 
-    def center(y, str)
+    def print_center(str, y)
+      # TODO : consider screen width and str.length
       x = (Ncurses.getmaxx(@@tl_scr)-str.length) / 2
       y =  Ncurses.getmaxy(@@tl_scr)-y + 1 if y < 0
 
@@ -98,13 +83,6 @@ module BirdStrike
       @@msg_scr.refresh
     end
 
-    def self.writing?
-      x = Ncurses.getcurx(@@msg_scr)
-      y = Ncurses.getcury(@@msg_scr)
-      @@tl_scr.mvaddstr(0, 0, x.to_s)
-      return x<=3 && y==1 ? false : true
-    end
-
     def self.rewrite_timeline # too dirty, too complex
       @@tl_scr.clear
       maxx = Ncurses.getmaxx(@@tl_scr)
@@ -133,6 +111,7 @@ module BirdStrike
       @@tl_scr.refresh
     end
 
+    private
     def ncurses_init
       Ncurses.setlocale(Ncurses::LC_ALL, "")
       Ncurses.initscr
@@ -149,6 +128,31 @@ module BirdStrike
       Ncurses.init_pair(5, Ncurses::COLOR_MAGENTA, Ncurses::COLOR_BLACK)
       Ncurses.init_pair(6, Ncurses::COLOR_YELLOW,  Ncurses::COLOR_BLACK)
       Ncurses.init_pair(7, Ncurses::COLOR_BLACK,   Ncurses::COLOR_CYAN )
+    end
+
+    def make_subwins
+      cols, rows = get_max_cols_rows(Ncurses.stdscr)
+      # Sub Window
+      #  Ncurses::WINDOW.new(height, width, lefttopy, lefttopx)
+      @tl_scr = Ncurses::WINDOW.new(rows-5, 0, 0, 0)
+
+      @msg_scr = Ncurses::WINDOW.new(0, 0, 0, 0)
+      @msg_scr.border(*"  ------".bytes)
+      @msg_scr.intrflush false
+      @msg_scr.keypad true
+      @msg_scr.idlok true
+      @msg_scr.scrollok true
+    end
+
+    def self.writing?
+      x = Ncurses.getcurx(@@msg_scr)
+      y = Ncurses.getcury(@@msg_scr)
+      @@tl_scr.mvaddstr(0, 0, x.to_s)
+      return x<=3 && y==1 ? false : true
+    end
+
+    def get_max_cols_rows(screen)
+      return Ncurses.getmaxx(screen), Ncurses.getmaxy(screen)
     end
 
     def self.at_exit

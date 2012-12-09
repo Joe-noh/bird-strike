@@ -12,17 +12,17 @@ module BirdStrike
     token  = FileIO.get_access_token
 
     if token.nil?
-      @@win.center(-4, TwitterModule::Auth.get_oauth_url keys)
+      @@win.print_center(TwitterModule::Auth.get_oauth_url keys, -4)
       begin
         pin = @@win.prompt("pin").strip.to_i
         token = Authorization.get_oauth_token pin
         FileIO.store_access_token token
       rescue => e
-        @@win.center(-2, e.message)
+        @@win.print_center(e.message, -2)
         retry
       end
     end
-    TwitterModule::Auth.authorize keys.merge token
+    TwitterModule::Auth.authorize(keys.merge token)
 
     [TwitterModule::Streaming.thread, InputLoop.thread].each(&:join)
   end

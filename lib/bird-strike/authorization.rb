@@ -13,7 +13,6 @@ module BirdStrike
 
     def self.get_oauth_token(pin)
       token = @@req_token.get_access_token(:oauth_verifier => pin)
-      FileIO.store_access_token token
       {:token => token.token, :token_secret => token.secret}
     end
 

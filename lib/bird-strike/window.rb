@@ -2,32 +2,24 @@
 
 module BirdStrike
   class Window
+    @@initialized = false
 
     def initialize
-      ncurses_init
-      @timeline = TimeLine.new(:userstream)
-      make_subwins
-      rewrite
+      curses_init unless @@initialized
+      @win = Curses::Window.new(0, 0, 0, 0)
     end
 
-    def rewrite
-      x = Ncurses.getmaxx @@tl_scr
-      y = Ncurses.getmaxy @@tl_scr
-    end
-
-    def self.add_tweet_status(status)
-      @@tweets.unshift status
-      self.writing?
-      self.rewrite_timeline
+    def method_missing(method, *args)
+      @win.send(method, *args)
     end
 
     def print_center(str, y)
       # TODO : consider screen width and str.length
-      x = (Ncurses.getmaxx(@@tl_scr)-str.length) / 2
-      y =  Ncurses.getmaxy(@@tl_scr)-y + 1 if y < 0
+      x = (@win.maxx-str.length) / 2
+      y =  @win.maxy-y + 1 if y < 0
 
-      @@tl_scr.mvaddstr(y, x, str)
-      @@tl_scr.refresh
+      mvaddstr(y, x, str)
+      @win.refresh
     end
 
     def puts_title
@@ -43,32 +35,29 @@ module BirdStrike
       width  = title.first.length
       height = title.length
 
-      x = (Ncurses.getmaxx(@@tl_scr) - width )/2
-      y = (Ncurses.getmaxy(@@tl_scr) - height)/2
+      x = (@win.maxx - width )/2
+      y = (@win.maxy - height)/2
 
-      @@tl_scr.color_set(7, nil)
-      title.each_with_index do |line, i|
-        @@tl_scr.mvaddstr(y+i, x, line)
-      end
-      @@tl_scr.color_set(0, nil)
-      @@tl_scr.move(y, x)
+      @win.color_set(7)
+      @win.setpos(y, x)
       title.each_with_index do |line, i|
         line.each_char.with_index do |char, j|
-          @@tl_scr.mvaddstr(y+i, x+j, ' ') unless char == ' '
+          mvaddstr(y+i, x+j, ' ') if char == ' '
         end
       end
-      @@tl_scr.refresh
+      @win.color_set(0)
+      @win.refresh
     end
 
-    def self.prompt
-      @@msg_scr.move(0, 0)
+    def prompt
+      @@msg_scr.setpos(0, 0)
       @@msg_scr.refresh
 
-      Ncurses.curs_set 1
+      Curses.curs_set 1
       system("stty  echo")
       input = Readline.readline
       system("stty -echo")
-      Ncurses.curs_set 0
+      Curses.curs_set 0
 
       @@msg_scr.clear
       @@msg_scr.refresh
@@ -76,91 +65,48 @@ module BirdStrike
       return input
     end
 
-    def self.deprompt
-      maxx = Ncurses.getmaxx(@@msg_scr)
-      @@msg_scr.mvaddstr(1, 1, ' '*(maxx-2))
-      @@msg_scr.move(1, 1)
-      @@msg_scr.refresh
-    end
-
-    def self.rewrite_timeline # too dirty, too complex
-      @@tl_scr.clear
-      maxx = Ncurses.getmaxx(@@tl_scr)
-      maxy = Ncurses.getmaxy(@@tl_scr)
-      y = 0; x = 0
-      @@tweets.each do |tweet|
-        name, text, rtby = tweet.name_text_rtby
-        rtby = rtby.rjust maxx unless rtby.nil?
-        @@tl_scr.mvaddstr(y, 0, ' '*maxx)
-        @@tl_scr.mvaddstr(y, 0, name)
-        indent = Ncurses.getcurx(@@tl_scr)
-        text.each_char do |char|
-          if  Ncurses.getcurx(@@tl_scr) >= maxx-2 ||
-              Ncurses.getcury(@@tl_scr) >  y
-            y += 1
-            break if y >= maxy
-            @@tl_scr.move(y, 0)
-            @@tl_scr.addstr " "*indent
-          end
-          break if y >= maxy
-          @@tl_scr.addstr char
-        end
-        break if y >= maxy
-        y += 1
-      end
-      @@tl_scr.refresh
+    def mvaddstr(y, x, str)
+      @win.setpos(y, x)
+      @win.addstr str
     end
 
     private
-    def ncurses_init
-      Ncurses.setlocale(Ncurses::LC_ALL, "")
-      Ncurses.initscr
-      Ncurses.cbreak
-      Ncurses.nonl
-      Ncurses.echo
-      Ncurses.curs_set 0
+    def curses_init
+#      Curses.setlocale(Curses::LC_ALL, "") # necessary?
+      Curses.init_screen
+      Curses.cbreak
+      Curses.nonl
+      Curses.echo
+      Curses.curs_set 0
 
-      Ncurses.start_color
-      Ncurses.init_pair(1, Ncurses::COLOR_RED,     Ncurses::COLOR_BLACK)
-      Ncurses.init_pair(2, Ncurses::COLOR_GREEN,   Ncurses::COLOR_BLACK)
-      Ncurses.init_pair(3, Ncurses::COLOR_BLUE,    Ncurses::COLOR_BLACK)
-      Ncurses.init_pair(4, Ncurses::COLOR_CYAN,    Ncurses::COLOR_BLACK)
-      Ncurses.init_pair(5, Ncurses::COLOR_MAGENTA, Ncurses::COLOR_BLACK)
-      Ncurses.init_pair(6, Ncurses::COLOR_YELLOW,  Ncurses::COLOR_BLACK)
-      Ncurses.init_pair(7, Ncurses::COLOR_BLACK,   Ncurses::COLOR_CYAN )
-    end
-
-    def make_subwins
-      cols, rows = get_max_cols_rows(Ncurses.stdscr)
-      # Sub Window
-      #  Ncurses::WINDOW.new(height, width, lefttopy, lefttopx)
-      @tl_scr = Ncurses::WINDOW.new(rows-5, 0, 0, 0)
-
-      @msg_scr = Ncurses::WINDOW.new(0, 0, 0, 0)
-      @msg_scr.border(*"  ------".bytes)
-      @msg_scr.intrflush false
-      @msg_scr.keypad true
-      @msg_scr.idlok true
-      @msg_scr.scrollok true
+      Curses.start_color
+      Curses.init_pair(1, Curses::COLOR_RED,     Curses::COLOR_BLACK)
+      Curses.init_pair(2, Curses::COLOR_GREEN,   Curses::COLOR_BLACK)
+      Curses.init_pair(3, Curses::COLOR_BLUE,    Curses::COLOR_BLACK)
+      Curses.init_pair(4, Curses::COLOR_CYAN,    Curses::COLOR_BLACK)
+      Curses.init_pair(5, Curses::COLOR_MAGENTA, Curses::COLOR_BLACK)
+      Curses.init_pair(6, Curses::COLOR_YELLOW,  Curses::COLOR_BLACK)
+      Curses.init_pair(7, Curses::COLOR_BLACK,   Curses::COLOR_CYAN )
     end
 
     def self.writing?
-      x = Ncurses.getcurx(@@msg_scr)
-      y = Ncurses.getcury(@@msg_scr)
+      x = Curses.getcurx(@@msg_scr)
+      y = Curses.getcury(@@msg_scr)
       @@tl_scr.mvaddstr(0, 0, x.to_s)
       return x<=3 && y==1 ? false : true
     end
 
     def get_max_cols_rows(screen)
-      return Ncurses.getmaxx(screen), Ncurses.getmaxy(screen)
+      return screen.maxx, screen.maxy
     end
 
-    def self.at_exit
-      Ncurses.echo
-      Ncurses.nocbreak
-      Ncurses.nl
-      Ncurses.endwin
+=begin
+    def @win.at_exit
+      Curses.echo
+      Curses.nocbreak
+      Curses.nl
+      Curses.close_screen
     end
-
+=end
   end
 end

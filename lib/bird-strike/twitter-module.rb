@@ -1,8 +1,15 @@
 #-*- coding: utf-8 -*-
 
 module BirdStrike
-  class Streaming
+  class Stream
+    attr_reader :client
+
+    @@client = TweetStream::Client.new
     @@tracking_threads = Hash.new
+
+    def initialize(method, *args)
+    end
+
 
     def self.thread
       @@stream = TweetStream::Client.new

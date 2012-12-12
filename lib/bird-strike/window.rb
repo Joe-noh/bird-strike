@@ -1,17 +1,17 @@
 #-*- coding: utf-8 -*-
 
 module BirdStrike
-  class Window
+  class Window < Curses::Window
     @@initialized = false
 
-    def initialize
+    def initialize(a, b, c, d)
       curses_init unless @@initialized
-      @win = Curses::Window.new(0, 0, 0, 0)
+      @win = super #Curses::Window.new(0, 0, 0, 0)
     end
 
-    def method_missing(method, *args)
-      @win.send(method, *args)
-    end
+#    def method_missing(method, *args)
+#      @win.send(method, *args)
+#    end
 
     def print_center(str, y)
       # TODO : consider screen width and str.length

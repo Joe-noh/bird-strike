@@ -5,12 +5,11 @@ module BirdStrike
   class Core
 
     def initialize
-      @tweets_array = Array.new
-    end
+      Curses.init
 
-    def launch
-      @win = Window.new
-      @win.puts_title
+      home_win = Curses::Window.new(0, 0, 0, 0)
+      home_tl = Timeline.new(home_win)
+      home_win.puts_title
       sleep 1
 
       @@conf = FileIO.get_config
@@ -18,12 +17,12 @@ module BirdStrike
       token  = FileIO.get_access_token
 
       if token.nil?
-        @win.print_center(Authorization.get_oauth_url keys, -4)
+        home_tl.print_center(Authorization.get_oauth_url keys, -4)
         begin
-          pin   = @win.prompt("pin").strip.to_i
+          pin   = home_tl.prompt("pin").strip.to_i
           token = Authorization.get_oauth_token(pin)
         rescue => e
-          @win.print_center(e.message, -2)
+          home_tl.print_center(e.message, -2)
           retry
         end
         FileIO.store_access_token token
@@ -31,8 +30,10 @@ module BirdStrike
       Authorization.authorize(keys.merge token)
       @@stream_client = TweetStream::Client.new
 
-      home = new_stream(:userstream)
-      puts home.stream.join
+      home_tl.stream = Thread.new {
+        @@stream_client.userstream(&home_tl.on_receipt)
+      }
+      home_tl.stream.join
 
       Thread.new{
         loop do
@@ -43,7 +44,6 @@ module BirdStrike
     end
 
     def new_stream(method, *args)
-      tl = Timeline.new(@win)
       tl.stream = Thread.new {
         @@stream_client.send(method, *args, &tl.on_receipt)
       }
@@ -54,5 +54,5 @@ module BirdStrike
 end
 
 at_exit {
-  BirdStrike::Window.at_exit
+  Curses.close_screen
 }

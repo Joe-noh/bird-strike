@@ -13,7 +13,7 @@ require "cgi"
 lib_path = File.expand_path('../bird-strike', __FILE__)
 require "#{lib_path}/core.rb"
 require "#{lib_path}/extend.rb"
-require "#{lib_path}/window.rb"
+#require "#{lib_path}/window.rb"
 require "#{lib_path}/timeline.rb"
 require "#{lib_path}/authorization.rb"
 require "#{lib_path}/file-io.rb"

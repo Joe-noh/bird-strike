@@ -7,5 +7,5 @@ _yardoc
 doc/
 
 
-key/*
+key/consumer.yaml
 .git

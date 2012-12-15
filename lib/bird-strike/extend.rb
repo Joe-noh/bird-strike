@@ -30,7 +30,7 @@ module Curses
     Curses.init_screen
     Curses.cbreak
     Curses.nonl
-    Curses.echo
+    Curses.noecho
     Curses.curs_set 0
 
     Curses.start_color
@@ -71,13 +71,22 @@ module Curses
       self.refresh
     end
 
+    def print_center(str, y)
+      # TODO : consider screen width and str.length
+      x = (self.maxx-str.length) / 2
+      y =  self.maxy-y + 1 if y < 0
+
+      mvaddstr(y, x, str)
+      self.refresh
+    end
+
     def mvaddstr(y, x, str)
       self.setpos(y, x)
       self.addstr str
     end
 
-    def maxxy
-      return self.maxx, self.maxy
+    def maxyx
+      return self.maxy, self.maxx
     end
   end
 end

@@ -8,21 +8,22 @@ module BirdStrike
       Curses.init
 
       home_win = Curses::Window.new(0, 0, 0, 0)
-      home_tl = Timeline.new(home_win)
       home_win.puts_title
+#      @prompt = Prompt.new(home_win.maxy)
+
       sleep 1
 
       @@conf = FileIO.get_config
       keys   = FileIO.get_consumer_key_secret
       token  = FileIO.get_access_token
 
-      if token.nil?
-        home_tl.print_center(Authorization.get_oauth_url keys, -4)
+      if token.nil?  # Authorization Part
+        home_win.print_center(Authorization.get_oauth_url keys, -4)
         begin
-          pin   = home_tl.prompt("pin").strip.to_i
+          pin   = home_win.prompt("pin").strip.to_i
           token = Authorization.get_oauth_token(pin)
         rescue => e
-          home_tl.print_center(e.message, -2)
+          home_win.print_center(e.message, -2)
           retry
         end
         FileIO.store_access_token token
@@ -30,23 +31,34 @@ module BirdStrike
       Authorization.authorize(keys.merge token)
       @@stream_client = TweetStream::Client.new
 
-      home_tl.stream = Thread.new {
-        @@stream_client.userstream(&home_tl.on_receipt)
-      }
-      home_tl.stream.join
+      @timelines = [new_stream(home_win, :userstream)]
 
-      Thread.new{
+      Thread.new(@timelines){ |timelines|  # Input Processing
+        timelines.each{|tl| tl.stream.run}
         loop do
-          sleep 1
+          cmd = Curses.getch
+          case cmd
+          when 13 || Curses::KEY_ENTER  # Enter
+            timelines.first.stop
+            prompt = Prompt.new(home_win.maxy)
+            tweet = prompt.get_input
+            Twitter.update(tweet) unless tweet.nil?
+            prompt.close
+            timelines.first.start
+            timelines.each(&:rewrite_timeline)
+          end
         end
       }.join
+
       #[TwitterModule::Streaming.thread, InputLoop.thread].each(&:run)
     end
 
-    def new_stream(method, *args)
+    def new_stream(window, method, *args)
+      tl = Timeline.new(window)
       tl.stream = Thread.new {
         @@stream_client.send(method, *args, &tl.on_receipt)
       }
+#      tl.stream.run
       return tl
     end
 

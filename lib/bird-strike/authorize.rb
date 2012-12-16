@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 
 module BirdStrike
-  module Authorization
+  module Authorize
 
     def self.get_oauth_url(keys)
       oauth = OAuth::Consumer.new(keys[:consumer_key],

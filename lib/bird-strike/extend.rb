@@ -1,13 +1,5 @@
 #-*- coding: utf-8 -*-
 
-class String
-  def width
-    self.each_char.inject(0) do |sum, c|
-      (c.ascii_only? ? 1 : 2 ) + sum
-    end
-  end
-end
-
 module Twitter
   class Tweet
     def name_text_rtby
@@ -20,6 +12,12 @@ module Twitter
       name = ' '+status.from_user+': '
       return name, CGI.unescapeHTML(status.text), rt_by
     end
+  end
+end
+
+module TweetStream
+  class Client
+    include Singleton
   end
 end
 
@@ -44,42 +42,6 @@ module Curses
   end
 
   class Window
-    def puts_title
-      title = Array.new
-      title << "        11111111111111111111111        111111111111111111  1111111111"
-      title << "  1111  1111111111111111111  11  1111  111111111111111111  1111111111"
-      title << "  1111  111  11111111111111  11  111111111  1111111111  1  1111111111"
-      title << "          11111111111111111  11          1    11111111111  11        "
-      title << "  111111  1  1      1        1111111111  1  111      1  1  11  1111  "
-      title << "  111111  1  1  11111  1111  11  111111  1  111  11111  1            "
-      title << "  111111  1  1  11111  1111  11  111111  1  111  11111  1  11  111111"
-      title << "          1  1  11111        11          1    1  11111  1  11        "
-      width  = title.first.length
-      height = title.length
-
-      x = (self.maxx - width )/2
-      y = (self.maxy - height)/2
-
-      self.color_set(7)
-      self.setpos(y, x)
-      title.each_with_index do |line, i|
-        line.each_char.with_index do |char, j|
-          mvaddstr(y+i, x+j, ' ') if char == ' '
-        end
-      end
-      self.color_set(0)
-      self.refresh
-    end
-
-    def print_center(str, y)
-      # TODO : consider screen width and str.length
-      x = (self.maxx-str.length) / 2
-      y =  self.maxy-y + 1 if y < 0
-
-      mvaddstr(y, x, str)
-      self.refresh
-    end
-
     def mvaddstr(y, x, str)
       self.setpos(y, x)
       self.addstr str

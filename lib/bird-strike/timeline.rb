@@ -1,23 +1,28 @@
 module BirdStrike
   class Timeline
-    attr_accessor :stream, :window
+    attr_accessor :window
 
     @@writing = false
+    @@stream_client = TweetStream::Client.instance
 
-    def initialize(win)
-#      @stream = nil
-      @window = win
+    def initialize(height, width, y, x, method = :userstream, *args)
       @tweets = Array.new
+#      @window = Curses::Window.new(height, width, y, x)
+      @stream = Thread.new {
+        @@stream_client.send(method, *args, &on_receipt)
+      }
+      @stream.run
     end
 
     def on_receipt
       Proc.new do |tweet|
         @tweets.unshift tweet
-        self.rewrite_timeline unless @@writing
+        puts @tweet
+#        renew unless @@writing
       end
     end
 
-    def rewrite_timeline # too dirty, too complex
+    def renew # too dirty, too complex
       @window.clear
       maxy, maxx = @window.maxyx
       y = x = 0
@@ -47,11 +52,11 @@ module BirdStrike
       @window.refresh
     end
 
-    def start
+    def self.start_updating
       @@writing = false
     end
 
-    def stop
+    def self.stop_updating
       @@writing = true
     end
 

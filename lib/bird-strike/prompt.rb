@@ -3,8 +3,8 @@
 module BirdStrike
   class Prompt
 
-    def initialize(p_height)
-      @p_height = Curses.stdscr.maxy
+    def initialize
+      @p_height, @p_width = Curses.stdscr.maxyx
       @window = Curses::Window.new(2, 0, @p_height-2, 0)
       @window.setpos(0, 0)
       @window.addstr("-"*@window.maxx)
@@ -35,16 +35,15 @@ module BirdStrike
 
     private
     def rewrite_prompt(buf, height, message)
-      maxx = @window.maxx
       @window.move(@p_height-height, 0)
-      @window.resize(height, maxx)
+      @window.resize(height, @_width)
       @window.clear
-      @window.mvaddstr(0, 0, "-"*maxx)
+      @window.mvaddstr(0, 0, "-"*@p_width)
       buf.each_with_index do |line, i|
         @window.mvaddstr(i+1, 1, line)
       end
-      @window.mvaddstr(buf.size+1, 0, message.rjust(maxx))
-      @window.mvaddstr(buf.size+2, 0, "-"*maxx)
+      @window.mvaddstr(buf.size+1, 0, message.rjust(@p_width))
+      @window.mvaddstr(buf.size+2, 0, "-"*@p_width)
       @window.refresh
     end
   end

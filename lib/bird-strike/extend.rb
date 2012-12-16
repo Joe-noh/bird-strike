@@ -31,27 +31,27 @@ module Twitter
   end
 end
 
-module Curses
+module Ncurses
   module_function
 
   def init
-    Curses.init_screen
-    Curses.cbreak
-    Curses.nonl
-    Curses.noecho
-    Curses.curs_set 0
+    Ncurses.initscr
+    Ncurses.cbreak
+    Ncurses.nonl
+    Ncurses.noecho
+    Ncurses.curs_set 0
 
-    Curses.start_color
-    Curses.init_pair(1, Curses::COLOR_RED,     Curses::COLOR_BLACK)
-    Curses.init_pair(2, Curses::COLOR_GREEN,   Curses::COLOR_BLACK)
-    Curses.init_pair(3, Curses::COLOR_BLUE,    Curses::COLOR_BLACK)
-    Curses.init_pair(4, Curses::COLOR_CYAN,    Curses::COLOR_BLACK)
-    Curses.init_pair(5, Curses::COLOR_MAGENTA, Curses::COLOR_BLACK)
-    Curses.init_pair(6, Curses::COLOR_YELLOW,  Curses::COLOR_BLACK)
-    Curses.init_pair(7, Curses::COLOR_BLACK,   Curses::COLOR_CYAN )
+    Ncurses.start_color
+    Ncurses.init_pair(1, Ncurses::COLOR_RED,     Ncurses::COLOR_BLACK)
+    Ncurses.init_pair(2, Ncurses::COLOR_GREEN,   Ncurses::COLOR_BLACK)
+    Ncurses.init_pair(3, Ncurses::COLOR_BLUE,    Ncurses::COLOR_BLACK)
+    Ncurses.init_pair(4, Ncurses::COLOR_CYAN,    Ncurses::COLOR_BLACK)
+    Ncurses.init_pair(5, Ncurses::COLOR_MAGENTA, Ncurses::COLOR_BLACK)
+    Ncurses.init_pair(6, Ncurses::COLOR_YELLOW,  Ncurses::COLOR_BLACK)
+    Ncurses.init_pair(7, Ncurses::COLOR_BLACK,   Ncurses::COLOR_CYAN )
   end
 
-  class Window
+  class WINDOW
     def puts_title
       title = Array.new
       title << "        11111111111111111111111        111111111111111111  1111111111"
@@ -65,36 +65,36 @@ module Curses
       width  = title.first.length
       height = title.length
 
-      x = (self.maxx - width )/2
-      y = (self.maxy - height)/2
+      x = (self.getmaxx - width )/2
+      y = (self.getmaxy - height)/2
 
-      self.color_set(7)
-      self.setpos(y, x)
+      self.attrset(Ncurses.COLOR_PAIR 7)
+      self.move(y, x)
       title.each_with_index do |line, i|
         line.each_char.with_index do |char, j|
           mvaddstr(y+i, x+j, ' ') if char == ' '
         end
       end
-      self.color_set(0)
+      self.attrset(Ncurses.COLOR_PAIR 0)
       self.refresh
     end
 
     def print_center(str, y)
       # TODO : consider screen width and str.length
-      x = (self.maxx-str.length) / 2
-      y =  self.maxy-y + 1 if y < 0
+      x = (self.getmaxx-str.length) / 2
+      y =  self.getmaxy-y + 1 if y < 0
 
-      mvaddstr(y, x, str)
+      self.mvaddstr(y, x, str)
       self.refresh
     end
 
-    def mvaddstr(y, x, str)
-      self.setpos(y, x)
-      self.addstr str
-    end
+#    def mvaddstr(y, x, str)
+#      self.setpos(y, x)
+#      self.addstr str
+#    end
 
-    def maxyx
-      return self.maxy, self.maxx
+    def getsize
+      return self.getmaxy, self.getmaxx
     end
   end
 end

@@ -18,14 +18,15 @@ module BirdStrike
 
     def rewrite # too dirty, too complex
       @window.clear
-      maxy, maxx = @window.maxyx
+      maxy, maxx = @window.getsize
       y = x = 0
       @tweets.each do |tweet|
         name, text, rtby = tweet.name_text_rtby
+        name = colored name
         @window.mvaddstr(y, 0, name)
-        indent = @window.curx
+        indent = @window.getcurx
         text.each_char do |char|
-          if  @window.curx >= maxx-2 || @window.cury >  y
+          if  @window.getcurx >= maxx-2 || @window.getcury >  y
             y += 1
             break if y >= maxy
             @window.mvaddstr(y, 0, " "*indent)
@@ -36,10 +37,10 @@ module BirdStrike
         break if y >= maxy
 
         unless rtby.nil?
-          x = @window.curx
+          x = @window.getcurx
           y += 1 if (x + rtby.length) > maxx
           break if y >= maxy
-          @window.mvaddstr(y, @window.maxx-rtby.length, rtby)
+          @window.mvaddstr(y, @window.getmaxx-rtby.length, rtby)
         end
         y += 1
       end

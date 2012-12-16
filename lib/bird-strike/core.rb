@@ -5,9 +5,9 @@ module BirdStrike
   class Core
 
     def initialize
-      Curses.init
+      Ncurses.init
 
-      @windows = [Curses::Window.new(0, 0, 0, 0)]
+      @windows = [Ncurses::WINDOW.new(0, 0, 0, 0)]
       @windows.first.puts_title
 
       sleep 1
@@ -32,22 +32,21 @@ module BirdStrike
       @@stream_client = TweetStream::Client.new
 
       @timelines = [new_stream(@windows.first, :userstream)]
-      @a = 0
       # Input Processing
       Thread.new {
-        # @timelines.first.window.print_center(Curses.stdscr.maxyx.to_s, 5)
         loop do
-          refresh_windows
-          cmd = Curses.getch
+          cmd = Ncurses.getch
           case cmd
-          when 13 || Curses::Key::ENTER  # Enter
+          when 13 || Ncurses::KEY_ENTER  # Enter
             @timelines.first.stop
-            prompt = Prompt.new(*Curses.stdscr.maxyx)
+            prompt = Prompt.new
             tweet = prompt.get_input
             Twitter.update(tweet) unless tweet.nil?
             prompt.close
             @timelines.first.start
             @timelines.each(&:rewrite)
+          when Ncurses::KEY_RESIZE
+            # refresh_window
           end
         end
       }.join
@@ -62,15 +61,14 @@ module BirdStrike
       return tl
     end
 
-    # Resize, Replace, Rewrite
+    # Resize, Replace, Rewrite   FIXME! THIS METHOD DOESN'T WORK!
     def refresh_windows
-      Curses.close_screen
-      Curses.init
-      maxy, maxx = Curses.stdscr.maxyx
+      maxy, maxx = Ncurses.stdscr.getsize
       x = 0
       maxx.split(@timelines.size).zip(@timelines) do |width, timeline|
-        timeline.window.close
-        timeline.window = Curses::Window.new(maxy, width, 0, x)
+#        timeline.window.delete
+#        timeline.window = Ncurses::WINDOW.new(maxy, width, 0, x)
+        timeline.window.resize(maxy, width)
         timeline.rewrite
         x += width
       end
@@ -80,5 +78,5 @@ module BirdStrike
 end
 
 at_exit {
-  Curses.close_screen
+  Ncurses.endwin
 }

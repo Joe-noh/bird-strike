@@ -3,7 +3,7 @@
 require "twitter"
 require "tweetstream"
 require "oauth"
-require "curses"
+require "ncurses"
 require "readline"
 require "yaml"
 require "json"

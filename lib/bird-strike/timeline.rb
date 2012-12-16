@@ -3,11 +3,11 @@ module BirdStrike
     attr_accessor :window
 
     @@writing = false
-    @@stream_client = TweetStream::Client.instance
 
     def initialize(height, width, y, x, method = :userstream, *args)
+      @@stream_client = TweetStream::Client.instance
       @tweets = Array.new
-#      @window = Curses::Window.new(height, width, y, x)
+      @window = Curses::Window.new(height, width, y, x)
       @stream = Thread.new {
         @@stream_client.send(method, *args, &on_receipt)
       }
@@ -17,8 +17,7 @@ module BirdStrike
     def on_receipt
       Proc.new do |tweet|
         @tweets.unshift tweet
-        puts @tweet
-#        renew unless @@writing
+        renew unless @@writing
       end
     end
 

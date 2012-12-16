@@ -4,35 +4,29 @@ module BirdStrike
   class Core
 
     def initialize
-#      Curses.init
+      Curses.init
 
-#      @windows = [Curses::Window.new(0, 0, 0, 0)]
-#      @windows.first.puts_title
-#      @title = TitleWindow.new
-#      @title.puts_title
+      @title = TitleWindow.new
+      @title.puts_title
       sleep 1
 
       authorize
       @conf = FileIO.get_config
+      @prompt = Prompt.new
 
-      @timelines = [Timeline.new(0, 0, 0, 0)]
-      puts Thread.list
+      @timelines = [Timeline.new(0, 0, 0, 0)] # Home Timeline
 
       # Input Processing
       Thread.new {
-        loop do
-        end
         loop do
           cmd = Curses.getch
           case cmd
           when 13 || Curses::Key::ENTER  # Enter
             Timeline.stop_updating
-            prompt = Prompt.new(Curses.stdscr.maxy)
-            tweet = prompt.get_input
+            tweet = @prompt.get_input
             Twitter.update(tweet) unless tweet.nil?
-            prompt.close
             Timeline.start_updating
-            timelines.each(&:renew)
+            @timelines.each(&:renew)
           end
         end
       }.join
@@ -45,7 +39,7 @@ module BirdStrike
       if token.nil?  # not authorized
         @title_window.print_center(Authorize.get_oauth_url(keys), -4)
         begin
-          pin   = @prompt.get_input("pin").strip.to_i
+          pin   = @prompt.get_line("pin:").strip.to_i
           token = Authorize.get_oauth_token(pin)
         rescue => e
           @title_window.print_center(e.message, -2)

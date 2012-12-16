@@ -1,11 +1,10 @@
 module BirdStrike
   class Timeline
-    attr_accessor :stream, :window
+    attr_accessor :stream, :window, :tweets
 
     @@writing = false
 
     def initialize(win)
-#      @stream = nil
       @window = win
       @tweets = Array.new
     end
@@ -13,11 +12,11 @@ module BirdStrike
     def on_receipt
       Proc.new do |tweet|
         @tweets.unshift tweet
-        self.rewrite_timeline unless @@writing
+        self.rewrite unless @@writing
       end
     end
 
-    def rewrite_timeline # too dirty, too complex
+    def rewrite # too dirty, too complex
       @window.clear
       maxy, maxx = @window.maxyx
       y = x = 0

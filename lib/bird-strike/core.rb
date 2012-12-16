@@ -32,20 +32,22 @@ module BirdStrike
       @@stream_client = TweetStream::Client.new
 
       @timelines = [new_stream(@windows.first, :userstream)]
-
+      @a = 0
       # Input Processing
-      Thread.new(@timelines){ |timelines|
+      Thread.new {
+        # @timelines.first.window.print_center(Curses.stdscr.maxyx.to_s, 5)
         loop do
+          refresh_windows
           cmd = Curses.getch
           case cmd
           when 13 || Curses::Key::ENTER  # Enter
-            timelines.first.stop
-            prompt = Prompt.new(Curses.stdscr.maxy)
+            @timelines.first.stop
+            prompt = Prompt.new(*Curses.stdscr.maxyx)
             tweet = prompt.get_input
             Twitter.update(tweet) unless tweet.nil?
             prompt.close
-            timelines.first.start
-            timelines.each(&:rewrite_timeline)
+            @timelines.first.start
+            @timelines.each(&:rewrite)
           end
         end
       }.join
@@ -58,6 +60,20 @@ module BirdStrike
       }
       tl.stream.run
       return tl
+    end
+
+    # Resize, Replace, Rewrite
+    def refresh_windows
+      Curses.close_screen
+      Curses.init
+      maxy, maxx = Curses.stdscr.maxyx
+      x = 0
+      maxx.split(@timelines.size).zip(@timelines) do |width, timeline|
+        timeline.window.close
+        timeline.window = Curses::Window.new(maxy, width, 0, x)
+        timeline.rewrite
+        x += width
+      end
     end
 
   end

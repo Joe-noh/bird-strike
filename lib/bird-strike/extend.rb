@@ -8,6 +8,14 @@ class String
   end
 end
 
+class Fixnum
+  def split(n)
+    return [self] if n <= 1
+    width = self/n
+    return Array.new(n-1, width) << (self - width*(n-1))
+  end
+end
+
 module Twitter
   class Tweet
     def name_text_rtby

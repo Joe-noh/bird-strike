@@ -6,13 +6,13 @@ module BirdStrike
     def initialize
       Curses.init
 
-      @title = TitleWindow.new
-      @title.puts_title
+      @title_window = TitleWindow.new
+      @title_window.puts_title
       sleep 1
 
-      authorize
       @conf = FileIO.get_config
       @prompt = Prompt.new
+      authorize
 
       @timelines = [Timeline.new(0, 0, 0, 0)] # Home Timeline
 
@@ -37,12 +37,12 @@ module BirdStrike
       token  = FileIO.get_access_token
 
       if token.nil?  # not authorized
-        @title_window.print_center(Authorize.get_oauth_url(keys), -4)
+        @title_window.print_in_middle(Authorize.get_oauth_url(keys), -4)
         begin
           pin   = @prompt.get_line("pin:").strip.to_i
           token = Authorize.get_oauth_token(pin)
         rescue => e
-          @title_window.print_center(e.message, -2)
+          @title_window.print_in_middle(e.message, -4)
           retry
         end
         FileIO.store_access_token token

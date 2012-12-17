@@ -9,8 +9,7 @@ module Twitter
       else
         status = self
       end
-      name = ' '+status.from_user+': '
-      return name, CGI.unescapeHTML(status.text), rt_by
+      return status.from_user, CGI.unescapeHTML(status.text), rt_by
     end
   end
 end

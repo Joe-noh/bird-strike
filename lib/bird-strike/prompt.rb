@@ -34,11 +34,12 @@ module BirdStrike
       close_prompt
       return (buf.join.strip.length == 0) ? nil : buf.join
     end
-
+    require "rainbow"
     private
     def open_prompt
       @window = Curses::Window.new(2, 0, @p_height-2, 0)
       @window.setpos(0, 0)
+
       @window.addstr("-"*@window.maxx)
       @window.refresh
       Curses.curs_set 1

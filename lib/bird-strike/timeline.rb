@@ -5,6 +5,7 @@ module BirdStrike
     @@writing = false
 
     def initialize(height, width, y, x, method = :userstream, *args)
+      @@colorizer rescue @@colorizer = Colorizer.new
       @@stream_client = TweetStream::Client.instance
       @tweets = Array.new
       @window = Curses::Window.new(height, width, y, x)
@@ -27,7 +28,11 @@ module BirdStrike
       y = x = 0
       @tweets.each do |tweet|
         name, text, rtby = tweet.name_text_rtby
-        @window.mvaddstr(y, 0, name)
+        @window.mvaddstr(y, 0, " ")
+        @window.color_set(@@colorizer.color_of name)
+        @window.addstr name
+        @window.color_set(0)
+        @window.addstr ": "
         indent = @window.curx
         text.each_char do |char|
           if  @window.curx >= maxx-2 || @window.cury >  y

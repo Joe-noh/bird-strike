@@ -36,7 +36,7 @@ module BirdStrike
     def print_in_middle(str, y)
       # TODO : consider screen width and str.length
       x = (@window.maxx-str.length) / 2
-      y =  @window.maxy-y + 1 if y < 0
+      y =  @window.maxy+y if y < 0
 
       @window.mvaddstr(y, x, str)
       @window.refresh

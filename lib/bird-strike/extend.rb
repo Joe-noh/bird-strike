@@ -1,11 +1,24 @@
 #-*- coding: utf-8 -*-
 
+class String
+  def separate_screen_name
+    def re(regexp)
+      return "" if self.empty?
+      p = self.partition(regexp)
+      return [p[0],  p[1], p[2].empty? ? "" : p[2].re(regexp)]
+    end
+
+    return self.re(/@\w+/).flatten.delete_if(&:empty?)
+  end
+end
+
+
 module Twitter
   class Tweet
     def name_text_rtby
       if self.retweet?
         status = self.retweeted_status
-        rt_by = "[Retweeted by #{self.from_user}]"
+        rt_by = self.from_user
       else
         status = self
       end

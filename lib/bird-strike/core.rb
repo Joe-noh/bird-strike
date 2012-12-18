@@ -26,8 +26,19 @@ module BirdStrike
             tweet = @prompt.get_input
             Twitter.update(tweet) unless tweet.nil?
             Timeline.start_updating
-            @timelines.each(&:renew)
+          when 't'
+            Timeline.stop_updating
+            track = @prompt.get_line("track word:")
+            @timelines << Timeline.new(0, 0, 0, 0, :track, track)
+            maxy, maxx = Curses.stdscr.maxyx
+            n = @timelines.size
+            @timelines.each_with_index do |tl, i|
+              tl.window.resize(maxy, maxx/n)
+              tl.window.move(0, i*maxx/n)
+            end
+            Timeline.start_updating
           end
+          @timelines.each(&:renew)
         end
       }.join
     end

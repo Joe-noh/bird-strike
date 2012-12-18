@@ -27,29 +27,38 @@ module BirdStrike
       maxy, maxx = @window.maxyx
       y = x = 0
       @tweets.each do |tweet|
-        name, text, rtby = tweet.name_text_rtby
+        name, text, rt_user = tweet.name_text_rtby
         @window.mvaddstr(y, 0, " ")
         @window.color_set(@@colorizer.color_of name)
         @window.addstr name
         @window.color_set(0)
         @window.addstr ": "
         indent = @window.curx
-        text.each_char do |char|
-          if  @window.curx >= maxx-2 || @window.cury >  y
-            y += 1
+        text.separate_screen_name.each do |part|
+          @window.color_set(@@colorizer.color_of part)
+          part.each_char do |char|
+            if  @window.curx >= maxx-2 || @window.cury >  y
+              y += 1
+              break if y >= maxy
+              @window.mvaddstr(y, 0, " "*indent)
+            end
             break if y >= maxy
-            @window.mvaddstr(y, 0, " "*indent)
+            @window.addstr char
           end
           break if y >= maxy
-          @window.addstr char
         end
         break if y >= maxy
 
-        unless rtby.nil?
+        unless rt_user.nil?
+          rtby = " [Retweeted by #{rt_user}] "
           x = @window.curx
           y += 1 if (x + rtby.length) > maxx
           break if y >= maxy
-          @window.mvaddstr(y, @window.maxx-rtby.length, rtby)
+          @window.mvaddstr(y, @window.maxx-rtby.length, " [Retweeted by ")
+          @window.color_set(@@colorizer.color_of rt_user)
+          @window.addstr rt_user
+          @window.color_set(0)
+          @window.addstr "] "
         end
         y += 1
       end

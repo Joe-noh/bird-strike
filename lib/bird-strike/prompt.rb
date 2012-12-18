@@ -9,15 +9,11 @@ module BirdStrike
 
     def get_line(prompt_message)
       open_prompt
-      while line = Readline.readline(prompt_message)
-        if line.chomp.length == 0
-          @window.clear
-          @window.refresh
-        else
-          close_prompt
-          return line
-        end
-      end
+      line = Readline.readline(prompt_message).strip
+      @window.clear
+      @window.refresh
+      close_prompt
+      return line.length == 0 ? nil : line
     end
 
     def get_input
@@ -25,7 +21,7 @@ module BirdStrike
       buf = Array.new
       open_prompt
       while line = Readline.readline
-        break if line.chomp.length == 0
+        break if line.strip.length == 0
         @window.setpos(@window.maxy, 0)
         buf << line
         rewrite_prompt(buf, height, "Press Enter to Confirm.")
@@ -34,7 +30,7 @@ module BirdStrike
       close_prompt
       return (buf.join.strip.length == 0) ? nil : buf.join
     end
-    require "rainbow"
+
     private
     def open_prompt
       @window = Curses::Window.new(2, 0, @p_height-2, 0)

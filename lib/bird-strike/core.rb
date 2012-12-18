@@ -29,6 +29,7 @@ module BirdStrike
           when 't'
             Timeline.stop_updating
             track = @prompt.get_line("track word:")
+            next if track.nil?
             @timelines << Timeline.new(0, 0, 0, 0, :track, track)
             maxy, maxx = Curses.stdscr.maxyx
             n = @timelines.size

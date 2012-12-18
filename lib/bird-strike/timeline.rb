@@ -9,10 +9,9 @@ module BirdStrike
       @@stream_client = TweetStream::Client.instance
       @tweets = Array.new
       @window = Curses::Window.new(height, width, y, x)
-      @stream = Thread.new {
+      Thread.start {
         @@stream_client.send(method, *args, &on_receipt)
       }
-      @stream.run
     end
 
     def on_receipt

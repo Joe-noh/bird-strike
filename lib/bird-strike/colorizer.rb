@@ -10,7 +10,7 @@ module BirdStrike
     end
 
     def color_of(name)
-      @color[name] || @color["@"+name]
+      @color[name =~ /^@\w+$/ ? name[1..-1] : name]
     end
 
     private

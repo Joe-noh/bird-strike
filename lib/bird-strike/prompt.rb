@@ -2,6 +2,7 @@
 
 module BirdStrike
   class Prompt
+    attr_accessor :window
 
     def initialize
       @p_height, @p_width = Curses.stdscr.maxyx
@@ -29,6 +30,11 @@ module BirdStrike
       end
       close_prompt
       return (buf.join.strip.length == 0) ? nil : buf.join
+    end
+
+    def fake
+      open_prompt
+      close_prompt
     end
 
     private

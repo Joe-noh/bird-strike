@@ -8,6 +8,7 @@ module BirdStrike
       @@colorizer rescue @@colorizer = Colorizer.new
       @@stream_client = TweetStream::Client.instance
       @tweets = Array.new
+      @tweets = Twitter.home_timeline(:count => 40) if method == :userstream
       @window = Curses::Window.new(height, width, y, x)
       Thread.start {
         @@stream_client.send(method, *args, &on_receipt)
@@ -26,6 +27,7 @@ module BirdStrike
       maxy, maxx = @window.maxyx
       y = x = 0
       @tweets.each do |tweet|
+        break if y >= maxy
         name, text, rt_user = tweet.name_text_rtby
         @window.mvaddstr(y, 0, " ")
         @window.color_set(@@colorizer.color_of name)
@@ -46,7 +48,6 @@ module BirdStrike
           end
           break if y >= maxy
         end
-        break if y >= maxy
 
         unless rt_user.nil?
           rtby = " [Retweeted by #{rt_user}] "

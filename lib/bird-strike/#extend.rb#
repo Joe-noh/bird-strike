@@ -41,7 +41,6 @@ module Curses
     Curses.cbreak
     Curses.nonl
     Curses.noecho
-    Curses.stdscr.keypad(true)
     Curses.curs_set 0
 
     Curses.start_color

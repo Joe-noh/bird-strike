@@ -15,10 +15,10 @@ module BirdStrike
       authorize
 
       @timelines = [Timeline.new(0, 0, 0, 0)] # Home Timeline
+      @timelines.first.window.keypad(true)
     end
 
     def main_loop
-
       loop do
         @timelines.each(&:renew)
         cmd = @timelines.first.window.getch
@@ -37,6 +37,10 @@ module BirdStrike
             tl.window.resize(maxy, maxx/n)
             tl.window.move(0, i*maxx/n)
           end
+        when Curses::Key::UP
+          @timelines.each(&:scroll_up)
+        when Curses::Key::DOWN
+          @timelines.each(&:scroll_down)
         end
         Timeline.start_updating
       end

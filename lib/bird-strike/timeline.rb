@@ -9,6 +9,7 @@ module BirdStrike
       @@stream_client = TweetStream::Client.instance
       @tweets = Array.new
       @tweets = Twitter.home_timeline(:count => 40) if method == :userstream
+      @head   = 0
       @window = Curses::Window.new(height, width, y, x)
       Thread.start {
         @@stream_client.send(method, *args, &on_receipt)
@@ -26,7 +27,7 @@ module BirdStrike
       @window.clear
       maxy, maxx = @window.maxyx
       y = x = 0
-      @tweets.each do |tweet|
+      @tweets[@head .. -1].each do |tweet|
         break if y >= maxy
         name, text, rt_user = tweet.name_text_rtby
         @window.mvaddstr(y, 0, " ")
@@ -63,6 +64,14 @@ module BirdStrike
         y += 1
       end
       @window.refresh
+    end
+
+    def scroll_up
+      @head -= 1 if @head > 0
+    end
+
+    def scroll_down
+      @head += 1 if @tweets.size > @head
     end
 
     def self.start_updating

@@ -58,7 +58,7 @@ module BirdStrike
 
     def rewrite_prompt(buf, height, message)
       @window.move(@p_height-height, 0)
-      @window.resize(height, @_width)
+      @window.resize(height, @p_width)
       @window.clear
       @window.mvaddstr(0, 0, "-"*@p_width)
       buf.each_with_index do |line, i|

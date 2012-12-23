@@ -14,3 +14,23 @@ header {
     text-align: center;
     padding:    30px;
 }
+
+header ul, header li {
+    list-style-type: none;
+    display:         inline;
+}
+
+nav {
+    float: right;
+    width: 300px;
+}
+
+section {
+    float: right;
+    width: 250px;
+}
+
+footer {
+    clear:      both;
+    text-align: center;
+}

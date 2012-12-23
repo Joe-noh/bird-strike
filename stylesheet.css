@@ -21,7 +21,7 @@ header ul, header li {
 }
 
 nav {
-    float: right;
+    float: left;
     width: 230px;
 }
 

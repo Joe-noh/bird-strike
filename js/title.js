@@ -8,9 +8,9 @@ window.onload = function(){
     var data = [{x:0, y:0},{x:0, y:8},{x:5, y:8}]
 
     function draw(i){
-	var p = data[ i ];
-	var q = data[i+1];
-	context.lineTo(q.x-p.x, q.y-p.y);
+	var p = data[i];
+	context.lineTo(p.x, p.y);
+	context.stroke();
     }
 
     function sleep(time) {
@@ -23,7 +23,9 @@ window.onload = function(){
     }
 
     var loop = function(){
-	for(var i=0 ; i < data.size ; i++){
+	context.beginPath();
+	context.moveTo(data[0].x, data[0].y);
+	for(var i=1 ; i < data.size ; i++){
 	    draw(i);
 	    sleep(0.5);
 	}

@@ -10,8 +10,8 @@ function draw(x, y){
 }
 
 var loop = function(){
-    point.x += 2;
-    point.y += 2;
+    point.x = point.x + 2;
+    point.y = point.y + 2;
     draw(point.x, point.y);
     clearTimeout(timer);
     timer = setTimeout(timer, 50);

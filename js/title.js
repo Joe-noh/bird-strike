@@ -9,7 +9,7 @@ window.onload = function(){
 
     function draw(i){
 	var p = data[i];
-	context.lineTo(p.x, p.y);
+	context.lineTo(p.x*10, p.y*10);
 	context.stroke();
     }
 

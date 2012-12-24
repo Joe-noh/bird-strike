@@ -5,7 +5,7 @@ window.onload = function(){
 
     var timer;
 
-    var data = [{x:0, y:0},{x:0, y:8},{x:5, y:8}]
+    var data = [{x:1, y:0},{x:0, y:8},{x:5, y:8}]
 
     function draw(i){
 	var p = data[i];
@@ -27,7 +27,7 @@ window.onload = function(){
 	context.moveTo(data[0].x, data[0].y);
 	for(var i=1 ; i < data.size ; i++){
 	    draw(i);
-	    sleep(0.5);
+	    sleep(1);
 	}
     }
     loop();

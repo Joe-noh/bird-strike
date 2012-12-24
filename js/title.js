@@ -26,7 +26,7 @@ window.onload = function(){
     context.moveTo(data[0].x, data[0].y);
     for(var i=1 ; i<data.length ; i++){
 	draw(i);
-	sleep(10);
+	sleep(1000);
     }
 
 }

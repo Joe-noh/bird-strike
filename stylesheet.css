@@ -11,8 +11,9 @@ header, nav, section, footer {
 }
 
 header {
-    text-align: center;
-    padding:    30px;
+    font-familiy: "Yanone Kaffeesatz Regular", monospace;
+    text-align:   center;
+    padding:      30px;
 }
 
 header ul, header li {
@@ -21,7 +22,7 @@ header ul, header li {
 }
 
 nav {
-    float: left;
+    float: right;
     width: 230px;
 }
 

@@ -12,7 +12,7 @@ window.onload = function(){
     }
 
     var loop = function(){
-	point.x = point.x + 5;
+	point.x += 5;
 	point.y = point.y + 5;
 	draw(point.x, point.y);
 	clearTimeout(timer);

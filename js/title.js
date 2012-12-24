@@ -24,9 +24,9 @@ window.onload = function(){
 
     context.beginPath();
     context.moveTo(data[0].x, data[0].y);
-    for(var i=1 ; i < data.length ; i++){
+    for(var i=1 ; i<data.length ; i++){
 	draw(i);
-	sleep(1);
+	sleep(10);
     }
 
 }

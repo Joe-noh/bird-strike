@@ -16,6 +16,10 @@ header, nav, section, footer {
     color:   white;
     background: #202020;
 }
+
+h1, h2, h3, h4 {
+    color: cyan;
+}
 /****************************************************************/
 
 

@@ -14,11 +14,11 @@ header, nav, section, footer {
     margin:  5px;
     padding: 20px;
     color:   white;
-    background: #202020;
+    background: #222222;
 }
 
 h1, h2, h3, h4 {
-    color: #3399cc;
+    color: #22aacc;
 }
 /****************************************************************/
 
@@ -26,7 +26,7 @@ h1, h2, h3, h4 {
 /***** Header ***************************************************/
 header {
     text-align: center;
-    padding: 30px;
+    padding: 10px;
 }
 
 header ul, header li {
@@ -56,6 +56,7 @@ section {
 footer {
     clear: both;
     text-align: center;
+    padding: 10px;
 }
 /****************************************************************/
 

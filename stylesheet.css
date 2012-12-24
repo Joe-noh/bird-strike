@@ -17,7 +17,7 @@ header, nav, section, footer {
     margin:  5px;
     padding: 20px;
     color: white;
-    background: #101010;
+    background: #202020;
 }
 
 header {
@@ -31,13 +31,13 @@ header ul, header li {
 }
 
 nav {
-    float: right;
+    float: left;
     width: 230px;
 }
 
 section {
     float: right;
-    width: 620px;
+    width: 630px;
 }
 
 footer {

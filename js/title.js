@@ -5,10 +5,10 @@ window.onload = function(){
 
     var timer;
 
-    var data = [{x:1, y:0},{x:0, y:8},{x:5, y:8}]
+    var data = [{x:0, y:0},{x:0, y:8},{x:2, y:2},{x:3, y:7},{x:13, y:3}]
 
-    function draw(i){
-	var p = data[i];
+    function draw(n){
+	var p = data[n];
 	context.lineTo(p.x*10, p.y*10);
 	context.stroke();
     }
@@ -22,15 +22,11 @@ window.onload = function(){
 	return;
     }
 
-    var loop = function(){
-	context.beginPath();
-	context.moveTo(data[0].x, data[0].y);
-	context.lineTo(30, 40);
-	context.stroke();
-	for(var i=1 ; i < data.size ; i++){
-	    draw(i);
-	    sleep(1);
-	}
+    context.beginPath();
+    context.moveTo(data[0].x, data[0].y);
+    for(var i=1 ; i < data.length ; i++){
+	draw(i);
+	sleep(1);
     }
-    loop();
+
 }

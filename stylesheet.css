@@ -3,6 +3,14 @@ body {
     margin: 20px auto;
 }
 
+body, textarea {
+    font-family: "メイリオ", "ＭＳ Ｐゴシック", sans-serif;
+}
+
+input, select {
+    font-family: Arial, "ＭＳ Ｐゴシック", sans-serif;
+}
+
 header, nav, section, footer {
     display: block;
     border:  1px solid #ccc;

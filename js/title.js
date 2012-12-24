@@ -16,4 +16,3 @@ var loop = function(){
     clearTimeout(timer);
     timer = setTimeout(timer, 50);
 }
-loop();

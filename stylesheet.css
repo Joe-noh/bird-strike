@@ -16,16 +16,18 @@ header, nav, section, footer {
     border:  1px solid #ccc;
     margin:  5px;
     padding: 20px;
+    color: red;
+    background: black;
 }
 
 header {
-    text-align:   center;
-    padding:      30px;
+    text-align: center;
+    padding: 30px;
 }
 
 header ul, header li {
     list-style-type: none;
-    display:         inline;
+    display: inline;
 }
 
 nav {
@@ -39,6 +41,6 @@ section {
 }
 
 footer {
-    clear:      both;
+    clear: both;
     text-align: center;
 }

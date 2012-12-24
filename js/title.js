@@ -16,7 +16,7 @@ window.onload = function(){
 	point.y = point.y + 5;
 	draw(point.x, point.y);
 	clearTimeout(timer);
-	timer = setTimeout(timer, 10);
+	timer = setTimeout(loop, 10);
     }
     loop();
 }

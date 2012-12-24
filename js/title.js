@@ -23,7 +23,7 @@ window.onload = function(){
     }
 
     var loop = function(){
-	var p = data.pop();
+	var p = data.shift();
 	context.lineTo(p.x*10, p.y*10);
 	context.stroke();
 
@@ -32,7 +32,7 @@ window.onload = function(){
     }
     context.beginPath();
     context.moveTo(data[0].x, data[0].y);
-    data.pop();
+    data.shift();
 
     loop();
 }

@@ -22,11 +22,17 @@ window.onload = function(){
 	return;
     }
 
+    var loop = function(){
+	var p = data.pop();
+	context.lineTo(p.x*10, p.y*10);
+	context.stroke();
+
+	clearTimeout();
+	timer = setTimeout(loop, 500);
+    }
     context.beginPath();
     context.moveTo(data[0].x, data[0].y);
-    for(var i=1 ; i<data.length ; i++){
-	draw(i);
-	sleep(1000);
-    }
+    data.pop();
 
+    loop();
 }

@@ -1,37 +1,51 @@
 
 window.onload = function(){
-    var canvas  = document.getElementById("title");
-    var context = canvas.getContext("2d");
 
-    var timer;
+    var stage = new Kinetic.Stage({
+        container: 'title_container',
+        width: 578,
+        height: 300
+    });
+    var layer = new Kinetic.Layer();
+    var line = new Kinetic.Polygon({
+	points: [1, 1, 1, 17, 11, 17, 11, 7, 9, 7, 9, 1, 1, 1],
+	strokeWidth: 2,
+	stroke: 'cyan'
+    });
+/*    var rect = new Kinetic.Rect({
+        x: 100,
+        y: 100,
+        width: 100,
+        height: 50,
+        fill: 'green',
+        stroke: 'black',
+        strokeWidth: 2,
+        opacity: 0.2
+    });*/
+    layer.add(line);
+    stage.add(layer);
 
-    var data = [{x:0, y:8},{x:2, y:2},{x:3, y:7},{x:13, y:3}]
+    setTimeout(function() {
+        line.transitionTo({
+//	    points: [10, 10, 10, 170, 110, 170, 110, 70, 90, 70, 90, 10, 10, 10],
+	    strokeWidth: 5,
+	    duration: 1,
+	});
+    }, 1000);
 
-    function draw(n){
-	var p = data[n];
-	context.lineTo(p.x*10, p.y*10);
-	context.stroke();
-    }
-
-    function sleep(time) {
-	var d1 = new Date().getTime();
-	var d2 = new Date().getTime();
-	while (d2 < d1 + time) {
-	    d2 = new Date().getTime();
-	}
-	return;
-    }
-
-    var loop = function(){
-	var p = data.shift();
-	context.lineTo(p.x*10, p.y*10);
-	context.stroke();
-
-	clearTimeout();
-	timer = setTimeout(loop, 500);
-    }
-    context.beginPath();
-    context.moveTo(data[0].x, data[0].y);
-
-    loop();
+/*    setTimeout(function() {
+        rect.transitionTo({
+            x: 400,
+            y: 30,
+            rotation: Math.PI * 2,
+            opacity: 1,
+            strokeWidth: 6,
+            scale: {
+		x: 1.3,
+		y: 1.3
+            },
+            duration: 1,
+        });
+    }, 1000);
+*/
 }
